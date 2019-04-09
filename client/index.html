@@ -1,65 +1,117 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
-        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css"
-        integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf" crossorigin="anonymous">
-    <link rel="stylesheet" type="text/css" href="style.css">
 
-    <title>Mini WP</title>
+  <title>Mini WP</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css" integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf" crossorigin="anonymous">
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
 </head>
-
 <body>
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
-        <a class="navbar-brand" href="#"><i class="fab fa-wordpress-simple"></i></a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
-            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
 
-        <div class="collapse navbar-collapse" id="navbarSupportedContent">
-            <ul class="navbar-nav mr-auto">
-                <li class="nav-item active">
-                    <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#">Link</a>
-                </li>
-            </ul>
-            
-        </div>
-    </nav>
-
-    <nav class="navbar-primary">
-        <a href="#" class="btn-expand-collapse"><span class="glyphicon glyphicon-menu-left"></span></a>
-        <ul class="navbar-primary-menu">
-            <li>
-                <a href="#"><span class="nav-label">Dashboard</span></a>
-                <a href="#"><span class="nav-label">Profile</span></a>
-                <a href="#"><span class="nav-label">Settings</span></a>
-                <a href="#"><span class="nav-label">Notification</span></a>
-                <a href="#"><span class="nav-label">Monitor</span></a>
-                
-            </li>
-        </ul>
-    </nav>
-    <div class="main-content">
-        <h1> I am the main content </h1>
-        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Autem sint assumenda quae aliquid voluptatibus
-            quia, ea, ad natus magni repellat earum, culpa iure tempore. Enim dolor eaque minima voluptas ducimus?</p>
+<nav class="navbar navbar-inverse">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <a class="navbar-brand" ><i class="fab fa-wordpress-simple"></i></a>
     </div>
+    <ul class="nav navbar-nav">
+      <li class="active"><a href="#">Dashboard</a></li>
+    </ul>
+    <ul class="nav navbar-nav navbar-right">
+      <li><a href="#"><span class="glyphicon glyphicon-user"></span> Sign Up</a></li>
+      <li><a href="#"><span class="glyphicon glyphicon-log-in"></span> Login</a></li>
+    </ul>
+  </div>
+</nav>
+
+ <div class="row" id="side-bar-main-menu">
+    <div class=" col-md-3">
+    <ul class="nav nav-pills nav-stacked ">
+        <li class="nav-item">
+            <a class="nav-link" href="#"><i class="far fa-edit"></i>Write</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="#"><i class="fas fa-newspaper"></i>List Article</a>
+        </li>
+        </div>
+        
+        
+    <div id="app" class="container">
+        <div class=" col-md-9">
+        <div class="form-group">
+            <form method="post" v-on:submit.prevent = "addArticle">
+                <label for="title">Title :</label>
+                <input type="text" class="form-control" v-model ="title">
+                <label for="article">Article :</label>
+                <textarea class="form-control" rows="20" v-model ="article"></textarea>
+                <br>
+                <input class="btn btn-primary" type="submit" value="Submit">
+            </form>  
+        </div>
+        <br>
+       <h3>All Articles</h3>
+       <input type="text" v-model = "search" placeholder="search article"/>
+       <div v-for="blog in filterArticle">
+            <h2>{{blog.title}}</h2>
+            <article>{{blog.body}}</article>
+        </div>
+        </div>
+    </div>
+  </div>
 
     <script>
-        $('.btn-expand-collapse').click(function (e) {
-            $('.navbar-primary').toggleClass('collapsed');
-        });
+        var serverUrl = 'http://localhost:3000'
+
+        var app = new Vue ({
+            el : '#app',
+            data : {
+                title : '',
+                article : '',
+                articles : [],
+                search : ''
+            },
+            methods : {
+                addArticle () {
+                    axios
+                      .post(serverUrl + '/articles', {title : this.title, article : this.article})
+                      .then (( {data} ) => {
+                          this.articles.push(data)
+                          this.title = ''
+                          this.article = ''
+                      })
+                      .catch((err) => {
+                          console.log(err)
+                      })
+                }
+            },
+            created(){
+                axios
+                    .get(serverUrl + '/articles')
+                    .then(({ data }) => {
+                        console.log(data)
+                        this.articles = data
+                    })
+                    .catch((err) => {
+                        console.log(err)
+                    });
+            },
+            computed : {
+                filterArticle : function () {
+                    let regex = new RegExp("." + this.search + ".", "i")
+                    return this.articles.filter((blog) => {
+                        return blog.title.match(regex)
+                    })
+                }
+            }
+        })
     </script>
 
 </body>
-
 </html>
