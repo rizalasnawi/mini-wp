@@ -11,7 +11,7 @@
   <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css" integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf" crossorigin="anonymous">
   <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
-
+  <script src="/vueWysiwyg.js"></script>
 
 </head>
 <body>
@@ -25,8 +25,9 @@
       <li class="active"><a href="#">Dashboard</a></li>
     </ul>
     <ul class="nav navbar-nav navbar-right">
-      <li><a href="#"><span class="glyphicon glyphicon-user"></span> Sign Up</a></li>
+      <li><a href="#"><span class="glyphicon glyphicon-user"></span> Sign Up |</a></li>
       <li><a href="#"><span class="glyphicon glyphicon-log-in"></span> Login</a></li>
+      <li><a href="#"><span class="g-signin2" id="google-signin-btn" data-onsuccess="onSignIn"></span><i class="fab fa-google"></i></a></li>
     </ul>
   </div>
 </nav>
@@ -50,6 +51,7 @@
                 <label for="title">Title :</label>
                 <input type="text" class="form-control" v-model ="title">
                 <label for="article">Article :</label>
+                <wysiwyg v-model="text"></wysiwyg>
                 <textarea class="form-control" rows="20" v-model ="article"></textarea>
                 <br>
                 <input class="btn btn-primary" type="submit" value="Submit">
@@ -62,13 +64,15 @@
             <h2>{{blog.title}}</h2>
             <article>{{blog.body}}</article>
         </div>
+
         </div>
     </div>
   </div>
 
+  
+
     <script>
         var serverUrl = 'http://localhost:3000'
-
         var app = new Vue ({
             el : '#app',
             data : {
@@ -102,6 +106,7 @@
                         console.log(err)
                     });
             },
+            
             computed : {
                 filterArticle : function () {
                     let regex = new RegExp("." + this.search + ".", "i")
@@ -114,4 +119,7 @@
     </script>
 
 </body>
+    <footer>
+        <center><p> <© 2018 Rizal</p></center> 
+    </footer>
 </html>

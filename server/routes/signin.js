@@ -1,8 +1,9 @@
 const user = require('express').Router();
 const {UserController} = require('../controller');
 
-user.get('/', UserController.findAll);
-user.post('/', UserController.register);
+
+user.post('/local', UserController.signInLocal);
+user.post('/google', UserController.signInGoogle);
 
 
 module.exports = user

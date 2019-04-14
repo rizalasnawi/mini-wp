@@ -3,56 +3,84 @@ const {Article} = require('../models');
 
 class ArticleController {
 
-    static allArticle (req, res) {
+    static findAll ({ query }, res, next) {
+        q = {}
+        if(query && query.q) {
+            q = q.split('+').join(' ')
+        }
+
         Article
-          .find({})
+          .find({q})
           .then((articles) => {
               res.status(200).json(articles)
           })
-          .catch((err) => {
-              res.status(500).json(err)
-          })
+          .catch(next)
     }
 
-    static getOneArticle (req, res) {
+    static findOne ( {params}, res, next) {
         Article
-          .findOne({_id : req.params.id})
+          .findById(params.id)
           .then((articles) => {
-              res.status(200).json(articles)
+              if(articles) {
+                res.status(200).json(articles)
+              } else {
+                  res.status(400).json({message : 'No article found'})
+              }
           })
-          .catch((err) => {
-              res.status(500).json(err)
-          })
+          .catch(next)
     }
 
-    static createArticle(req, res) {
-        let obj = {
-            title : req.body.title,
-            content : req.body.content,
-            createdAt : new Date().toLocaleDateString(),
-            author : req.decoded.username,
-            featureImage : req.body.featureImage,
-            UserId : req.decoded.id
+    static findByUser ({query, decoded}, res, next) {
+        let q = {userId : decoded.id}
+        if(query && query.title) {
+            q,title = new RegExp(query.title, 'i')
         }
         Article
-          .create(obj)
+          .find(q)
+          .then(articles => {
+              res.status(200).json(articles)
+          })
+          .catch(next)
+    }
+
+    static createArticle( {file, body, decoded} , res, next) {
+        body.userId = decoded.id
+        body.featured_image = file
+        Article
+          .create( {... body} )
           .then((articles) => {
               res.status(201).json(articles)
           })
-          .catch((err) => {
-              res.status(500).json(err)
-          })
+          .catch(next)
     }
 
-    static deleteArticle (req, res) {
+    static deleteArticle ( {params} , res, next) {
         Article
-          .findByIdAndDelete(req.params.id)
+          .findOneAndDelete({_id : params.id})
           .then((articles) => {
-              res.status(200).json(articles)
+              if(articles) {
+                res.status(200).json(articles)
+              } else {
+                  res.status(404).json({message : 'Artilce not found'})
+              }
           })
-          .catch((err) => {
-              res.status(500).json(err)
-          })
+          .catch(next)
+    }
+
+    static updateArtilce ({}, res, next) {
+        Article
+        .findByIdAndUpdate({_id : params.id}, {... body}, Option)
+        .then((articles) => {
+            if(articles.userId != body.userId){
+                res.status(200)
+            } 
+            if(articles) {
+                res.status(200).json(articles)
+            } else {
+                res.status(404).json({message : 'Article not found'})
+            }
+        })
+        .catch(next)
     }
 
 }
